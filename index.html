@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Is this sheet current? — Bridgewater Tile</title>
+<style>
+  :root{--bg:#F4F6F8;--paper:#fff;--ink:#14161B;--mute:#5A6270;--rule:#D5DAE1;--blue:#150A9C;--ok:#1F7A4D;--ok-bg:#E3F3EA;--bad:#B3122B;--bad-bg:#FBE5E9;--warn:#9A6512;--warn-bg:#FFF3D6;--unk:#586170;--unk-bg:#EEF0F3}
+  @media (prefers-color-scheme: dark){:root{--bg:#15181E;--paper:#1C2028;--ink:#E6E8EC;--mute:#9AA3B2;--rule:#333A46;--blue:#B4BEFF;--ok:#5CC38E;--ok-bg:#12351F;--bad:#F58CA0;--bad-bg:#4A1A26;--warn:#E0A94A;--warn-bg:#4A3F12;--unk:#B0B8C6;--unk-bg:#262C36}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+  header{background:var(--paper);border-bottom:3px solid var(--blue);padding:14px 18px}
+  header .brand{font-weight:800;letter-spacing:.04em;color:var(--blue);font-size:14px;text-transform:uppercase}
+  header h1{margin:2px 0 0;font-size:20px;font-weight:600}
+  main{padding:18px;max-width:640px;margin:0 auto}
+  .status{border-radius:6px;padding:18px 18px 16px;margin:0 0 16px;border:1px solid transparent}
+  .status .word{font-size:34px;font-weight:800;letter-spacing:.02em;line-height:1.05;margin:0 0 6px}
+  .status .line{margin:0;font-size:16px}
+  .ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+  .bad{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+  .warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+  .unk{background:var(--unk-bg);color:var(--unk);border-color:var(--unk)}
+  .card{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin:0 0 14px}
+  .card h2{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:700}
+  .kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:16px}
+  .kv b{color:var(--mute);font-weight:600}
+  .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05em}
+  ol,ul{margin:6px 0 0;padding-left:1.3em} li{margin:4px 0}
+  .amend li{font-weight:600}
+  form{display:flex;gap:8px;margin-top:6px}
+  input{flex:1;font:inherit;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:20px;letter-spacing:.06em;padding:10px 12px;border:1px solid var(--rule);border-radius:6px;background:var(--bg);color:var(--ink);text-transform:lowercase}
+  button{font:inherit;font-weight:700;padding:10px 16px;border:0;border-radius:6px;background:var(--blue);color:#fff}
+  button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  footer{padding:18px;color:var(--mute);font-size:13px;max-width:640px;margin:0 auto}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Bridgewater Tile Ltd.</div>
+  <h1>Is this site instruction sheet current?</h1>
+</header>
+<main>
+  <section id="status" class="status unk" aria-live="polite">
+    <p class="word">CHECKING…</p>
+    <p class="line">Reading the code from the QR.</p>
+  </section>
+
+  <section id="detail" class="card" hidden>
+    <h2>This sheet</h2>
+    <div class="kv" id="kv"></div>
+  </section>
+
+  <section id="amend" class="card" hidden>
+    <h2>Pencil these onto the sheet before you use it</h2>
+    <ol class="amend" id="amendList"></ol>
+  </section>
+
+  <section id="history" class="card" hidden>
+    <h2>Revision history for this room</h2>
+    <ul id="histList"></ul>
+  </section>
+
+  <section class="card">
+    <h2>No camera? Type the code printed under the QR</h2>
+    <form id="form"><input id="codeIn" inputmode="text" autocomplete="off" spellcheck="false" placeholder="e.g. k7m2qp4x" maxlength="9" aria-label="check code"><button type="submit">Check</button></form>
+  </section>
+</main>
+<footer>The printed revision and issue date on the sheet are the primary record; this page confirms them. No signal, no answer — do not treat a page that will not load as "current". Superseded sheets: return them to the site super.</footer>
+<script>
+(function(){
+  var S = document.getElementById('status'), D = document.getElementById('detail'), KV = document.getElementById('kv');
+  var A = document.getElementById('amend'), AL = document.getElementById('amendList'), Hs = document.getElementById('history'), HL = document.getElementById('histList');
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function show(cls, word, line){ S.className = 'status ' + cls; S.innerHTML = '<p class="word">' + esc(word) + '</p><p class="line">' + line + '</p>'; }
+  function row(k, v){ return '<b>' + esc(k) + '</b><span>' + v + '</span>'; }
+  function render(d){
+    D.hidden = false;
+    KV.innerHTML = row('Job', esc(d.job)) + row('Room', esc(d.room_name) + (d.room_number ? ' — ' + esc(d.room_number) : ''))
+      + row('Revision', 'REV ' + esc(d.revision)) + row('Issued', esc(d.issued)) + row('Code', '<span class="code">#' + esc(d.token) + '</span>');
+    var am = d.amendments || [];
+    if (d.status === 'current') {
+      if (am.length) show('warn', 'CURRENT — WITH AMENDMENTS', 'Build from this sheet, but pencil the ' + am.length + ' change' + (am.length>1?'s':'') + ' below onto it first.');
+      else show('ok', 'CURRENT', 'REV ' + esc(d.revision) + ' is the sheet to build from. Nothing has changed since it was issued.');
+    } else {
+      var cur = d.current || {};
+      show('bad', 'SUPERSEDED — DO NOT USE', 'You are holding REV ' + esc(d.revision) + '. The current sheet is <b>REV ' + esc(cur.revision) + '</b> (code #' + esc(cur.token) + '). Get the current sheet from the site super before setting out.');
+    }
+    A.hidden = !am.length; AL.innerHTML = '';
+    am.forEach(function(a){ (a.change_lines||[]).forEach(function(l){ var li = document.createElement('li'); li.textContent = l; AL.appendChild(li); }); });
+    var h = d.history || []; Hs.hidden = !h.length; HL.innerHTML = '';
+    h.forEach(function(r){ var li = document.createElement('li'); li.innerHTML = '<b>REV ' + esc(r.revision) + '</b> · ' + esc(r.issued) + ' — ' + esc(r.why) + (r.revision === d.revision ? ' <em>(this sheet)</em>' : ''); HL.appendChild(li); });
+  }
+  function lookup(code){
+    code = (code||'').replace(/^#/, '').trim().toLowerCase();
+    D.hidden = A.hidden = Hs.hidden = true;
+    if (!/^[23456789bcdfghjkmnpqrstvwxyz]{8}$/.test(code)) { show('unk', 'NO CODE', 'Scan the QR on the sheet, or type the 8-character code printed under it.'); return; }
+    show('unk', 'CHECKING…', 'Looking up <span class="code">#' + esc(code) + '</span>.');
+    fetch('t/' + code + '.json', {cache: 'no-store'}).then(function(r){
+      if (r.status === 404) { show('unk', 'NOT ON RECORD', 'Code <span class="code">#' + esc(code) + '</span> is not one we issued, or the sheet is older than the check. Treat the sheet as unverified and ask the office.'); return null; }
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(function(d){ if (d) render(d); }).catch(function(){ show('unk', 'NO ANSWER', 'The check could not be reached. No signal is not a verdict — the printed REV and ISSUED date on the sheet are the record; confirm with the site super.'); });
+  }
+  document.getElementById('form').addEventListener('submit', function(e){ e.preventDefault(); var c = document.getElementById('codeIn').value; location.hash = '#' + c.replace(/^#/, '').toLowerCase(); lookup(c); });
+  window.addEventListener('hashchange', function(){ lookup(location.hash.slice(1)); });
+  lookup(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>

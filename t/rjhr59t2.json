@@ -5,14 +5,22 @@
   "room_name": "LAUNDRY",
   "revision": "A",
   "issued": "2026-09-02",
-  "status": "current",
-  "current": null,
+  "status": "superseded",
+  "current": {
+    "revision": "B",
+    "token": "2nv8jxv9"
+  },
   "amendments": [],
   "history": [
     {
       "revision": "A",
       "issued": "2026-09-02",
       "why": "First issue."
+    },
+    {
+      "revision": "B",
+      "issued": "2026-09-08",
+      "why": "TILE SPEC block, T7 row: \"Tiled baseboard\" and \"3.5\u201dx24\u201d\" struck in red; red BWT lines added below the existing location line reading \"tiled base DELETED for this room \u2014 painted / MDF base by others\"."
     }
   ]
 }
